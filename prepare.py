@@ -39,7 +39,7 @@ all_parameters = list(product(feature_folders, classifiers,fold_values,bag_value
 job_file = open('%s.jobs' %data_name,'w')
 for parameters in all_parameters:
 	project_path, classifier, fold, bag = parameters
- 	job_file.write('groovy -cp %s %s/Pipeline.groovy %s %s %s %s.arff %s\n' % (classpath, working_dir, project_path, fold, bag,data_name, classifier))
+ 	job_file.write('groovy -cp %s %s/base.groovy %s %s %s %s.arff %s\n' % (classpath, working_dir, project_path, fold, bag,data_name, classifier))
 
 job_file.close()
 
