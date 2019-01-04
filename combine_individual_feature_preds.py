@@ -8,6 +8,7 @@ Date:  1/02/2019
 from glob import glob
 import gzip
 from os.path import abspath, exists, isdir
+from os import listdir
 from sys import argv
 from common import load_properties
 from pandas import concat, read_csv
@@ -31,7 +32,7 @@ def combine_individual(path):
                 nested_fold_dfs.append(concat(bag_dfs, axis = 1))
             dirname_dfs.append(concat(nested_fold_dfs, axis = 0))
         with gzip.open('%s/validation-%s.csv.gz' % (path, fold), 'wb') as f:
-            concat(dirname_dfs, axis = 1).sort().to_csv(f)
+            concat(dirname_dfs, axis = 1).sort_index().to_csv(f)
 
     for fold in range(fold_count):
         dirname_dfs = []
@@ -46,9 +47,8 @@ def combine_individual(path):
                 bag_dfs.append(df)
             dirname_dfs.append(concat(bag_dfs, axis = 1))
         with gzip.open('%s/predictions-%s.csv.gz' % (path, fold), 'wb') as f:
-            concat(dirname_dfs, axis = 1).sort().to_csv(f)
+            concat(dirname_dfs, axis = 1).sort_index().to_csv(f)
 
-working_dir = dirname(abspath(argv[0]))
 data_folder = abspath(argv[1])
 data_name = data_folder.split('/')[-1]
 fns = listdir(data_folder)
