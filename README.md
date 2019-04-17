@@ -1,5 +1,5 @@
 ## Configurations
-	1. Install Java and grrovy.
+	1. Install Java and groovy.
 		This can be done using sdkman (https://sdkman.io/).
 	2. Install python environments using conda.
 
@@ -18,7 +18,10 @@
 	2. weka.properties
 		This file specifies the list of weka properties that are parsed to the training/testing of base classifiers. See the sample_data/weka.properties as an example.
 	3. Folders for feature sets
-		This is a list of folders under the main data path. Each of them originally contains only one file named as data.arff. The .arff files are the input feature matrices and labels for training/testing Weka base classifiers. Indices and labels of .arff files should be aligned across all feature sets. 
+		This is a list of folders under the main data path.
+		Each of them originally contains only one file named as data.arff.
+		The .arff files are the input feature matrices and labels for training/testing Weka base classifiers.
+		Indices and labels of .arff files should be aligned across all feature sets. 
 
 ## Run the pipeline
 
