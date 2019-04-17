@@ -1,15 +1,15 @@
 ## Configurations
 
-1. Install Java and groovy.
+### Install Java and groovy.
 
 This can be done using sdkman (https://sdkman.io/).
 
-2. Install python environments using conda:
+### Install python environments using conda:
 
 	conda create --name ei
 	conda install -n ei python=2.7.14 cython=0.19.1 pandas scikit-learn
 
-3. Download weka.jar to the current directory:
+### Download weka.jar to the current directory:
 
 	curl -O -L http://prdownloads.sourceforge.net/weka/weka-3-7-10.zip
 
