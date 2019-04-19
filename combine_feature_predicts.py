@@ -11,9 +11,9 @@ import pandas as pd
 import numpy as np
 
 data_folder = abspath(argv[1])
-#data_name = data_folder.split('/')[-1]
 
 fns = listdir(data_folder)
+fns = [fn for fn in fns if fn != 'analysis']
 fns = [data_folder  + '/' + fn for fn in fns]
 feature_folders = [fn for fn in fns if isdir(fn)]
 
@@ -27,7 +27,6 @@ for value in foldValues:
 	validation_dfs = []
 	for folder in feature_folders:
 		feature_name = folder.split('/')[-1]
-#		print folder + '/predictions-%d.csv.gz' %value
 		prediction_df = pd.read_csv(folder + '/predictions-%d.csv.gz' %value,compression='gzip')
 		prediction_df.set_index(['id','label'],inplace=True)
 		prediction_df.columns = ['%s.%s' %(feature_name,col) for col in prediction_df.columns]

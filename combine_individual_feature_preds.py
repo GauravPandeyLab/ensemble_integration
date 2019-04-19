@@ -25,7 +25,6 @@ def combine_individual(path):
                 bag_dfs = []
                 for bag in range(bag_count):
                     filename = '%s/validation-%s-%02i-%02i.csv.gz' % (dirname, fold, nested_fold, bag)
-		    #print filename
 		    try:
                         df = read_csv(filename, skiprows = 1, index_col = [0, 1], compression = 'gzip',engine='python')
                         df = df[['prediction']]
@@ -37,8 +36,6 @@ def combine_individual(path):
             dirname_dfs.append(concat(nested_fold_dfs, axis = 0))
 	concat(dirname_dfs,axis=1).sort_index().to_csv('%s/validation-%s.csv.gz' % (path, fold),compression='gzip')
 
-#        with gzip.open('%s/validation-%s.csv.gz' % (path, fold), 'wb') as f:
-#            concat(dirname_dfs, axis = 1).sort_index().to_csv(f)
 
     for fold in range(fold_count):
         dirname_dfs = []
@@ -56,13 +53,11 @@ def combine_individual(path):
 		    print 'file not existed or crashed %s' %filename
             dirname_dfs.append(concat(bag_dfs, axis = 1))
 	concat(dirname_dfs,axis=1).sort_index().to_csv('%s/predictions-%s.csv.gz' % (path, fold),compression='gzip')
-#        with gzip.open('%s/predictions-%s.csv.gz' % (path, fold), 'wb') as f:
-#            concat(dirname_dfs, axis = 1).sort_index().to_csv(f)
 
-#working_dir = dirname(abspath(argv[0]))
 data_folder = abspath(argv[1])
 data_name = data_folder.split('/')[-1]
 fns = listdir(data_folder)
+fns = [fn for fn in fns if fn != 'analysis']
 fns = [data_folder  + '/' + fn for fn in fns]
 feature_folders = [fn for fn in fns if isdir(fn)]
 
