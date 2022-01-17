@@ -35,15 +35,23 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
                                 data_dir))
     for ff in feat_folders:
         feat_df = read_arff_to_pandas_df(os.path.join(ff, 'data.arff'))
+        feat_df_drop_idx = feat_df.drop(columns=['fold', 'seqID', 'cls'])
         real_val_cols = []
+        feature_cols = feat_df_drop_idx.columns
+        real_val_cols = []
+        for i_col in feature_cols:
+            if len(feat_df_drop_idx[i_col].unique()) > 2:
+                real_val_cols.append(i_col)
         feat_df.loc[:, 'fold'] = 0
         # create 20 pseudo test entries
         df_shape = feat_df.shape
+        number_of_real_col = len(real_val_cols)
         for i in range(20):
             ri = i + df_shape[0]
+            feat_df.loc[ri] = np.random.binomial(size=df_shape[1], n=1, p=0.5)
             # number_of_real_col = len(real_val_cols)
             # feat_df.loc[ri] = np.random.randn(number_of_real_col)
-            feat_df.loc[ri] = np.random.randn(df_shape[1])
+            feat_df.loc[ri, real_val_cols] = np.random.randn(number_of_real_col)
             feat_df.loc[ri, 'fold'] = 1
             feat_df.loc[ri, 'seqID'] = i
             if (i % 2) == 0:
@@ -122,7 +130,7 @@ if __name__ == "__main__":
 
 
 
-    assert len(feature_folders) > 0
+    # assert len(feature_folders) > 0
 
     # get fold, id and label attribute
 

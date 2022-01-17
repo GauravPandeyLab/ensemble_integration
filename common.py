@@ -8,6 +8,7 @@ from os.path import exists,abspath,isdir,dirname
 from sys import argv
 from os import listdir,environ
 import pandas as pd
+import argparse
 
 
 def str2bool(v):
@@ -160,7 +161,7 @@ def data_dir_list(data_path, excluding_folder = ['analysis', 'feature_rank']):
 def read_arff_to_pandas_df(arff_path):
     # loadarff doesn't support string attribute
     # data = arff.loadarff(arff_path)
-    df = pd.read_csv(arff_path, comment='@')
+    df = pd.read_csv(arff_path, comment='@', header=None)
     num_col = df.shape[1]
     columns = []
     file1 = open(arff_path, 'r')

@@ -378,6 +378,7 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
             predictions_dfs = [s['testing_df'] for s in stacking_output]
             if rank:
                 training_dfs = stacking_output[0]['train_dfs'][0]
+                print(training_dfs)
                 training_labels = pd.DataFrame({'label': stacking_output[0]['train_dfs'][1]})
                 stacker.fit(training_dfs, training_labels)
                 n_repeats = 100
@@ -446,8 +447,8 @@ if __name__ == "__main__":
     parser.add_argument('--ens_for_rank', type=str, default='Choose one of the ensemble', help='Choose the ensemble for EI interpretation')
     args = parser.parse_args()
     data_path = abspath(args.path)
-    # if args.rank:
-    #     data_path = os.path.join(data_path,'feature_rank')
+    if args.rank:
+        data_path = os.path.join(data_path,'feature_rank')
 
     feature_folders = common.data_dir_list(data_path)
     if len(feature_folders) == 0:

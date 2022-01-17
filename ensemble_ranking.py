@@ -13,8 +13,8 @@ if __name__ == "__main__":
     parser.add_argument('--ensemble', '-e', type=str, default='none', help='ensemble which performs the best')
 
     args = parser.parse_args()
-    # feat_rank_data_path = os.path.join(args.path, 'feature_rank')
-    feat_rank_data_path = args.path
+    feat_rank_data_path = os.path.join(args.path, 'feature_rank')
+    # feat_rank_data_path = args.path
 
     bfpath = os.path.join(feat_rank_data_path, 'attribute_imp-1.csv.gz')
     bppath = os.path.join(feat_rank_data_path, 'analysis/local_model_ranks.csv')
