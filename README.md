@@ -4,6 +4,16 @@ Ensemble Integration (EI) is a customizable pipeline for generating diverse ense
 
 EI is designed for generating extremely large ensembles (taking days or weeks to generate) and thus consists of an initial data generation phase tuned for multicore and distributed computing environments. The output is a set of compressed CSV files containing the class distribution produced by each classifier that serves as input to a later ensemble learning phase. 
 
+The more details of EI can be found in our [Biorxiv preprint](https://www.biorxiv.org/content/10.1101/2020.05.29.123497v2):
+
+
+Full citation:
+
+Integrating multimodal data through interpretable heterogeneous ensembles
+Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey
+bioRxiv 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
+
+
 ## Configurations
 
 ### Install Java and groovy.
@@ -37,6 +47,10 @@ This file specifies the list of weka properties that are parsed to the training/
 
 3. Folders for feature sets
 This is a list of folders under the main data path. Each of them originally contains only one file named as data.arff. The .arff files are the input feature matrices and labels for training/testing Weka base classifiers. Indices and labels of .arff files should be aligned across all feature sets. 
+
+# Sample data
+
+We uploaded the sample data of 
 
 ## Run the pipeline
 
