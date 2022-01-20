@@ -58,14 +58,14 @@ def processTermArff(param, impute, fold=5):
     cols = cols.loc[cols == False].index.tolist()
     filled_df = filled_df.loc[:,cols]
     filled_df = filled_df.round(5)
-    filled_df = filled_df.iloc[:, 0:100]
+    # filled_df = filled_df.iloc[:, 0:100]
     # merged_df = pd.merge(filled_df, go_hpo_df, how='inner')
     merged_df = pd.concat([filled_df, go_hpo_df], axis=1, join='inner')
     merged_df.rename(columns={term: 'cls'}, inplace=True)
     merged_df['seqID'] = merged_df.index
     print('before', merged_df.shape)
     merged_df.dropna(inplace=True)
-    merged_df = merged_df.iloc[0:500,:]
+    # merged_df = merged_df.iloc[0:500,:]
     kf_split = StratifiedKFold(n_splits=fold, shuffle=True, random_state=64)
     # kf_split = KFold(n_splits=fold, shuffle=True, random_state=64)
     kf_idx_list = kf_split.split(merged_df, y=merged_df['cls'])
