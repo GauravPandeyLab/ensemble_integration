@@ -62,12 +62,12 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
         new_feat_dir = os.path.join(data_dir, ff.split('/')[-1])
         if not exists(new_feat_dir):
             os.mkdir(new_feat_dir)
-        feat_df['fold'] = feat_df['fold'].astype(int)
-        os.system('cp {} {}'.format(os.path.join(original_dir, 'classifiers.txt'),
-                                    new_feat_dir))
-        os.system('cp {} {}'.format(os.path.join(original_dir, 'weka.properties'),
-                                    new_feat_dir))
-        generate_data.convert_to_arff(feat_df, os.path.join(new_feat_dir,'data.arff'))
+            feat_df['fold'] = feat_df['fold'].astype(int)
+            os.system('cp {} {}'.format(os.path.join(original_dir, 'classifiers.txt'),
+                                        new_feat_dir))
+            os.system('cp {} {}'.format(os.path.join(original_dir, 'weka.properties'),
+                                        new_feat_dir))
+            generate_data.convert_to_arff(feat_df, os.path.join(new_feat_dir,'data.arff'))
         new_feat_folders.append(new_feat_dir)
     return data_dir, new_feat_folders
 
@@ -77,12 +77,13 @@ if __name__ == "__main__":
     parser.add_argument('--path', '-P', type=str, required=True, help='data path')
     parser.add_argument('--queue', '-Q', type=str, default='premium', help='LSF queue to submit the job')
     parser.add_argument('--node', '-N', type=str, default='16', help='number of node requested')
-    parser.add_argument('--time', '-T', type=str, default='30:00', help='number of hours requested')
-    parser.add_argument('--memory', '-M', type=str, default='40000', help='memory requsted in MB')
+    parser.add_argument('--time', '-T', type=str, default='20:00', help='number of hours requested')
+    parser.add_argument('--memory', '-M', type=str, default='20000', help='memory requsted in MB')
     parser.add_argument('--classpath', '-CP', type=str, default='./weka.jar', help='default weka path')
     parser.add_argument('--hpc', type=str2bool, default='true', help='use HPC cluster or not')
     parser.add_argument('--fold', '-F', type=int, default=5, help='number of cross-validation fold')
     parser.add_argument('--rank', type=str2bool, default='False', help='getting attribute importance')
+    # parser.add_argument('--create_rank_dir', type=str2bool, default='False', help='getting attribute importance')
     args = parser.parse_args()
     ### record starting time
     start = time()
@@ -116,7 +117,9 @@ if __name__ == "__main__":
             os.mkdir(feature_rank_path)
         data_path, feature_folders = create_pseudoTestdata(feature_rank_path,
                                                            feature_folders,
-                                                           original_dir=data_path)
+                                                           original_dir=data_path,
+                                                           # create_rank_dir=args.create_rank_dir,
+                                                           )
 
 
     # ### get paths of the list of features

@@ -7,6 +7,7 @@ from os import mkdir
 from sys import argv
 from itertools import product
 from sklearn.model_selection import KFold, StratifiedKFold
+import common
 
 def convert_to_arff(df, path):
     fn = open(path, 'w')
@@ -57,12 +58,14 @@ def processTermArff(param, impute, fold=5):
     cols = cols.loc[cols == False].index.tolist()
     filled_df = filled_df.loc[:,cols]
     filled_df = filled_df.round(5)
+    filled_df = filled_df.iloc[:, 0:100]
     # merged_df = pd.merge(filled_df, go_hpo_df, how='inner')
     merged_df = pd.concat([filled_df, go_hpo_df], axis=1, join='inner')
     merged_df.rename(columns={term: 'cls'}, inplace=True)
     merged_df['seqID'] = merged_df.index
     print('before', merged_df.shape)
     merged_df.dropna(inplace=True)
+    merged_df = merged_df.iloc[0:500,:]
     kf_split = StratifiedKFold(n_splits=fold, shuffle=True, random_state=64)
     # kf_split = KFold(n_splits=fold, shuffle=True, random_state=64)
     kf_idx_list = kf_split.split(merged_df, y=merged_df['cls'])
@@ -78,50 +81,49 @@ def processTermArff(param, impute, fold=5):
     # del merged_df.index.name
     # print(term, 'merged df')
     p = os.path.join(scratch_data_dir, feature)
+    print(p)
     if not exists(p):
         mkdir(p)
     path = os.path.join(p, 'data.arff')
     convert_to_arff(merged_df, path)
 
 if __name__ == "__main__":
-
-    scratch_data_dir = '/sc/arion/scratch/liy42/'
-    group_number_goterm = argv[2]
+    import argparse
+    parser = argparse.ArgumentParser(description='Feed some bsub parameters')
+    parser.add_argument('--outcome', type=str, required=True, help='data path')
+    parser.add_argument('--output_dir', type=str, default='./', help='attribute importance')
+    parser.add_argument('--method', type=str, default='EI', help='attribute importance')
+    args = parser.parse_args()
+    # scratch_data_dir = '/sc/arion/scratch/liy42/'
+    # group_number_goterm = argv[2]
 
     # TODO: predefine foldAttribute
-    if len(argv) > 4:
-        fold = int(argv[4])
-    else:
-        fold = 5
+    # if len(argv) > 4:
+    #     fold = int(argv[4])
+    # else:
+    fold = 5
+    #
+    #
+    #
+    # if 'Impute' in group_number_goterm:
+    #     impute_graph = True
+    # else:
+    impute_graph = False
 
-
-
-    if 'Impute' in group_number_goterm:
-        impute_graph = True
-    else:
-        impute_graph = False
-
-    csv_dir = './not_on_github/csv/'
-    tsv_dir = './not_on_github/tsv/'
-    if 'go' in argv[2]:
-        go_to_hpo_file = 'GO2HPO_binary.tsv'
-    else:
-        go_to_hpo_file = 'pos-neg-O-10.tsv'
-    # print(len(argv))
-    if argv[3] != 'EI':
-        features = [argv[3]]
+    csv_dir = './PFP/STRING_csv/'
+    tsv_dir = './PFP/'
+    if 'go' in args.outcome.lower():
+        go_to_hpo_file = 'GO_annotation.tsv'
+    if args.method != 'EI':
+        features = [args.method]
     else:
         features = ['coexpression', 'cooccurence', 'database',
                     'experimental', 'fusion', 'neighborhood',]
-    # features = ['deepNF']
 
-    # all_feat = ['coexpression', 'cooccurence', 'database',
-    #             'experimental', 'fusion', 'neighborhood', 'deepNF', 'mashup']
-
-    term = argv[1]
+    term = args.outcome
 
     t = term.split(':')[0] + term.split(':')[1]
-    scratch_data_dir = scratch_data_dir + group_number_goterm
+    scratch_data_dir = args.output_dir
 
     if not exists(scratch_data_dir):
         mkdir(scratch_data_dir)
@@ -132,13 +134,13 @@ if __name__ == "__main__":
     if not exists(scratch_data_dir):
         mkdir(scratch_data_dir)
 
-    os.system('cp sample_data/classifiers.txt {}'.format(scratch_data_dir[:-1]))
-    os.system('cp sample_data/weka.properties {}'.format(scratch_data_dir[:-1]))
+    os.system('cp sample_folder/classifiers.txt {}'.format(scratch_data_dir[:-1]))
+    os.system('cp sample_folder/weka.properties {}'.format(scratch_data_dir[:-1]))
 
     # for f in features:
     #     dest_dir = scratch_data_dir + f
-    #     os.system('cp sample_data/classifiers.txt {}'.format(dest_dir))
-    #     os.system('cp sample_data/weka.properties {}'.format(dest_dir))
+    #     os.system('cp sample_folder/classifiers.txt {}'.format(dest_dir))
+    #     os.system('cp sample_folder/weka.properties {}'.format(dest_dir))
     #
     # if len(features) > 0:
     for feature in features:
@@ -147,8 +149,8 @@ if __name__ == "__main__":
             mkdir(f_dir)
         if len(features) > 1:
             dest_dir = scratch_data_dir + feature
-            os.system('cp sample_data/classifiers.txt {}'.format(dest_dir))
-            os.system('cp sample_data/weka.properties {}'.format(dest_dir))
+            os.system('cp sample_folder/classifiers.txt {}'.format(dest_dir))
+            os.system('cp sample_folder/weka.properties {}'.format(dest_dir))
 
 
     # deepNF_net = pd.read_csv('/sc/hydra/scratch/liy42/deepNF/%s/%s.arff' %(t,t), header=None,comment='@')
