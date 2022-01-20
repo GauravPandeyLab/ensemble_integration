@@ -9,9 +9,9 @@ The more details of EI can be found in our [Biorxiv preprint](https://www.biorxi
 
 Full citation:
 
-Integrating multimodal data through interpretable heterogeneous ensembles
-Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey
-bioRxiv 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
+
+Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
+bioRxiv. Preprint. 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
 
 
 ## Configurations
@@ -52,7 +52,7 @@ This is a list of folders under the main data path. Each of them originally cont
 
 # Sample data
 
-We uploaded the sample data used in the paper on [zenodo](https://doi.org/10.5281/zenodo.5880107).
+We uploaded the sample data used in the paper on [zenodo](https://zenodo.org/record/5880168).
 
 There are two compressed zip files `PFP.zip` and `covid19_mortality.zip`. which contains the input data used for EI.
 
