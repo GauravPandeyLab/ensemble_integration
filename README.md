@@ -52,7 +52,7 @@ This is a list of folders under the main data path. Each of them originally cont
 
 # Sample data
 
-We uploaded the sample data used in the paper on [zenodo](https://zenodo.org/record/5880168).
+We uploaded the sample data used in the paper to [zenodo](https://zenodo.org/record/5880168).
 
 The compressed zip files `PFP.zip` contains the input data used for EI.
 
