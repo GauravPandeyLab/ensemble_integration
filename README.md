@@ -2,15 +2,15 @@
 
 Ensemble Integration (EI) is a customizable pipeline for generating diverse ensembles of heterogeneous classifiers, as well as the accompanying metadata needed for ensemble learning approaches utilizing ensemble diversity for improved performance. It also fairly evaluates the performance of several ensemble learning methods including ensemble selection [Caruana2004], and stacked generalization (stacking) [Wolpert1992]. Though other tools exist, we are unaware of a similarly modular, scalable pipeline designed for large-scale ensemble learning. EI was developed to support research by Yan Chak Li, Linhua Wang, and Gaurav Pandey.
 
-EI is designed for generating extremely large ensembles (taking days or weeks to generate) and thus consists of an initial data generation phase tuned for multicore and distributed computing environments. The output is a set of compressed CSV files containing the class distribution produced by each classifier that serves as input to a later ensemble learning phase. 
+EI is designed for generating extremely large ensembles (taking days or weeks to generate) and thus consists of an initial data generation phase tuned for multicore and distributed computing environments. The output is a set of compressed CSV files containing the class distribution produced by each classifier that serves as input to a later ensemble learning phase.
 
-More details of EI can be found in our [Biorxiv preprint](https://www.biorxiv.org/content/10.1101/2020.05.29.123497v2):
+More details of EI can be found in our [Biorxiv preprint](https://www.biorxiv.org/content/10.1101/2020.05.29.123497v3):
 
 
 Full citation:
 
 
-Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
+Yan Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
 bioRxiv. Preprint. 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
 
 
@@ -63,7 +63,7 @@ For example, you may generate the input data for predicting `GO:0000166` by the 
 
 	python generate_data.py --outcome GO:0000166 
 
-Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study.
+Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study. However, we shared the model built based on the dataset for application in `COVID-19_model` , which can load by using `load_models.py` [(more detail here)](###Saving and loading EI models).
 
 ## Evaluate/Model Selection of EI models by Nested CV
 
