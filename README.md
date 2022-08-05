@@ -82,11 +82,11 @@ Arguments of train_base.py:
 
 Option 1: Without access to Minerva, EI can be run sequentially.
 
-	python train_base.py --path [path] --hpc False
+	python train_base.py --path [data path] --hpc False
 
 Option 2: Run the pipeline in parallel on Minerva
 
-	python train_base.py --path [path] --node [#node] --queue [queue] --time [hour:min] --memory [memory]
+	python train_base.py --path [data path] --node [#node] --queue [queue] --time [hour:min] --memory [memory]
 
 ### Train and evaluate EI
 
@@ -99,7 +99,7 @@ Arguments of ensemble.py:
 
 Run the following command:
 
-	python ensemble.py --path P
+	python ensemble.py --path [data path]
 
 F-max scores of these models will be printed and written in the `performance.csv` file and saved to the `analysis` folder under the data path.
 
@@ -111,14 +111,14 @@ Similar to the above step, we will run `train_base.py` and `ensemble.py` again, 
 
 We first generate the local feature ranks (LFR) by the following:
 	
-	python train_base.py --path [path] --rank True
+	python train_base.py --path [path] --rank True --writeModel True
 
 This step will generate a new folder `feature_rank` under the data path, which contains a dataset merged with a pseudo test set only for interpretation purposes.
 
 
-From the `analysis/performance.csv` generated before (`rank=False`), we may determine the performance of the ensembles by the Nested-CV setup. We suggest using the best-performing ensemble for EI, eg `LR.S`, `CES` etc. So we may run generate the local model rank (LMR) by the following:
+From the `analysis/performance.csv` generated before (`--rank=False`), we may determine the performance of the ensembles by the Nested-CV setup. We suggest using the best-performing ensemble for EI, eg `LR.S`, `CES` etc. So we may run generate the local model rank (LMR) by the following:
 
-	python ensemble.py --path [path] --ens_for_rank [ensemble_algorithm] --rank True
+	python ensemble.py --path [path] --ens_for_rank [ensemble_algorithm] --rank True --writeModel True
 
 
 After these two steps for calculating LFR and LMR, we may run the ensemble feature ranking by the following:
@@ -126,6 +126,8 @@ After these two steps for calculating LFR and LMR, we may run the ensemble featu
 	python ensemble_ranking.py --path [path] --ensemble [ensemble_algorithm]
 
 
+### Loading EI models
+While performing the interpretation of EI model, both local models and EI models were also saved. (`--rank True --writeModel True`)
 
 
 ### More information about the implementation of EI
