@@ -1,6 +1,6 @@
 # Ensemble Integration (EI): Integrating multimodal data through interpretable heterogeneous ensembles
 
-Ensemble Integration (EI) is a customizable pipeline for generating diverse ensembles of heterogeneous classifiers, as well as the accompanying metadata needed for ensemble learning approaches utilizing ensemble diversity for improved performance. It also fairly evaluates the performance of several ensemble learning methods including ensemble selection [Caruana2004], and stacked generalization (stacking) [Wolpert1992]. Though other tools exist, we are unaware of a similarly modular, scalable pipeline designed for large-scale ensemble learning. EI was developed to support research by Yan-Chak Li, Linhua Wang, and Gaurav Pandey.
+Ensemble Integration (EI) is a customizable pipeline for generating diverse ensembles of heterogeneous classifiers, as well as the accompanying metadata needed for ensemble learning approaches utilizing ensemble diversity for improved performance. It also fairly evaluates the performance of several ensemble learning methods including ensemble selection [Caruana2004], and stacked generalization (stacking) [Wolpert1992]. Though other tools exist, we are unaware of a similarly modular, scalable pipeline designed for large-scale ensemble learning. EI was developed to support research by Yan Chak Li, Linhua Wang, and Gaurav Pandey.
 
 EI is designed for generating extremely large ensembles (taking days or weeks to generate) and thus consists of an initial data generation phase tuned for multicore and distributed computing environments. The output is a set of compressed CSV files containing the class distribution produced by each classifier that serves as input to a later ensemble learning phase. 
 
@@ -163,15 +163,15 @@ Here are the base classifier included in `classifier.txt`, which are used in `tr
 
  Here are the meta-classifiers used in stacking, which are used in `ensemble.py`.
 
-| Meta-classifier Name |Python Class Name|
-|----------------------|-----------------|
-| AdaBoost | sklearn.ensemble.AdaBoostClassifier |
-| Decision Tree | sklearn.tree.DecisionTreeClassifier |
-| Gradient Boosting | sklearn.ensemble.GradientBoostingClassifier |
-| K-nearest Neighbors | sklearn.neighbors.KNeighborsClassifier|
-| Logistic Regression | sklearn.linear_model.LogisticRegression |
-| Naive Bayes | sklearn.naive_bayes.GaussianNB|
-| Random Forest | sklearn.ensemble.RandomForestClassifier |
-| Support Vector Machine | sklearn.svm.SVC(kernel='linear')|
-| XGBoost | xgboost.XGBClassifier |
+| Meta-classifier Name |Python Class Name|Short Name|
+|----------------------|-----------------|----------|
+| AdaBoost | sklearn.ensemble.AdaBoostClassifier | S.AB |
+| Decision Tree | sklearn.tree.DecisionTreeClassifier | S.DT |
+| Gradient Boosting | sklearn.ensemble.GradientBoostingClassifier | S.GB |
+| K-nearest Neighbors | sklearn.neighbors.KNeighborsClassifier| S.KNN |
+| Logistic Regression | sklearn.linear_model.LogisticRegression | S.LR |
+| Naive Bayes | sklearn.naive_bayes.GaussianNB| S.NB |
+| Random Forest | sklearn.ensemble.RandomForestClassifier | S.RF|
+| Support Vector Machine | sklearn.svm.SVC(kernel='linear')| S.SVM |
+| XGBoost | xgboost.XGBClassifier | S.XGB |
 
