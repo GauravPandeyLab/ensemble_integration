@@ -13,8 +13,10 @@ Full citation:
 Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
 bioRxiv. Preprint. 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
 
+## Table of Content:
+* [Configurations](configurations) 
 
-## Configurations
+## <a name="configurations"></a> Configurations
 
 ### Install Java and groovy.
 
