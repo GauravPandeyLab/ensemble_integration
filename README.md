@@ -13,10 +13,9 @@ Full citation:
 Yan-Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
 bioRxiv. Preprint. 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
 
-## Table of Content:
-* [Configurations](configurations) 
 
-## <a name="configurations"></a> Configurations
+
+## Configurations
 
 ### Install Java and groovy.
 
@@ -66,7 +65,7 @@ For example, you may generate the input data for predicting `GO:0000166` by the 
 
 Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study.
 
-## Run the pipeline
+## Evaluate/Model Selection of EI models by Nested CV
 
 ### Train base classifiers
 
@@ -80,7 +79,6 @@ Arguments of train_base.py:
 	--classpath, -CP: Path of 'weka.jar' (default:'./weka.jar')
 	--hpc: use HPC cluster or not
 	--fold, -F: number of cross-validation fold
-	--rank: Boolean of getting local feature ranking or not (default:False)
 
 Option 1: Without access to Minerva, EI can be run sequentially.
 
@@ -96,8 +94,6 @@ Arguments of ensemble.py:
 
 	--path, -P: Path of the multimodal data
 	--fold, -F: cross-validation fold
-	--rank: Boolean of getting local model ranking or not (default:False)
-	--ens_for_rank: Choose the ensemble for EI interpretation
 
 Run the following command:
 
@@ -109,36 +105,43 @@ The prediction scores by the ensemble methods will be saved in `predictions.csv`
 
 ### Interpretation by EI
 
-Similar to the above step, we will run `train_base.py` and `ensemble.py` again, with option `--rank True`, to train the EI by the whole dataset. All  these results will be created in `feature_rank` folder.
+Similar to the above step, we will run `train_base.py` and `ensemble.py` again, with option `--rank True`, to train the EI by the whole dataset. All  these results will be created in `path/model_built` folder.
 
 We first generate the local feature ranks (LFR) by the following:
 	
-	python train_base.py --path [path] --rank True --writeModel True
+	python train_base.py --path [path] --rank True
 
 This step will generate a new folder `feature_rank` under the data path, which contains a dataset merged with a pseudo test set only for interpretation purposes.
 
 
-From the `analysis/performance.csv` generated before (`--rank=False`), we may determine the performance of the ensembles by the Nested-CV setup. We suggest using the best-performing ensemble for EI, eg `S.LR`, `CES`,  `Mean` etc. So we may run generate the local model rank (LMR) by the following:
+From the `path/analysis/performance.csv` generated before (`--rank=False`), we may determine the performance of the ensembles by the Nested-CV setup. We suggest using the best-performing ensemble for EI, eg `S.LR`, `CES`,  `Mean` etc. So we may generate the local model rank (LMR) by the following:
 
-	python ensemble.py --path [path] --ens_for_rank [ensemble algorithm] --rank True --writeModel True
+	python ensemble.py --path [path] --rank True --ens [ensemble algorithm] 
 
 
 After these two steps for calculating LFR and LMR, we may run the ensemble feature ranking by the following:
 
-	python ensemble_ranking.py --path [path] --ensemble [ensemble algorithm]
+	python ensemble_ranking.py --path [path] --ens [ensemble algorithm]
 
 
-### Loading EI models
-While performing the interpretation of EI model, both local models and EI models were also saved. (`--rank True --writeModel True`)
+### Saving and loading EI models
+We may save both local models and EI models for further inference by setting `--writeModel True` for both `train_base.py` and `ensemble.py`
+Local models were saved by:
+	
+	python train_base.py --path [path] --writeModel True
 
-Loading local models and make base prediction to new dataset (the `model_path` would be the `path/feature_rank`):
+Similar to the model interpretation, our target of interest would be the best-performing ensemble for EI. So we may save the ensemble model by the following: 
+	
+	python ensemble.py --path [path] --writeModel True --ens [ensemble algorithm] 
+
+Loading local models and make base prediction to new dataset (the `model_path` would be the `path/model_built`):
 
 	python load_models.py --data_path [new dataset path] --model_path [model path] --local_predictor True
 	
 
 We suggest using the best-performing ensemble for EI (eg `S.LR`, `CES`, `Mean` etc.) known from Nested-CV setup. We can use the saved ensemble model to perform integrative prediction, after obtaining the base prediction of new dataset:  
 
-	python load_models.py --data_path [new dataset path] --model_path [model path] --ens_model [ensemble model]
+	python load_models.py --data_path [new dataset path] --model_path [model path] --ens [ensemble model]
 	
 After this step, `prediction_scores.csv` containing predictions of new dataset is generated in `data_path/analysis` folder.
 
