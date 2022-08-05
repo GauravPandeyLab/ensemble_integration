@@ -63,7 +63,7 @@ For example, you may generate the input data for predicting `GO:0000166` by the 
 
 	python generate_data.py --outcome GO:0000166 
 
-Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study. However, we shared the model built based on the dataset for application in `COVID-19_model` , which can load by using `load_models.py` [(more detail here)](###Saving and loading EI models).
+Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study. However, we shared the model built based on the dataset for application in `COVID-19_model` , which can load by using `load_models.py` [(more detail here)](#saving-and-loading-ei-models).
 
 ## Evaluate/Model Selection of EI models by Nested CV
 
