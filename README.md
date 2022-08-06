@@ -84,7 +84,7 @@ Option 1: Without access to Minerva, EI can be run sequentially.
 
 	python train_base.py --path [data path] --hpc False
 
-Option 2: Run the pipeline in parallel on Minerva
+Option 2: Run the pipeline in parallel on Minerva HPC
 
 	python train_base.py --path [data path] --node [#node] --queue [queue] --time [hour:min] --memory [memory]
 
