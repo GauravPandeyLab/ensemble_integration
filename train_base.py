@@ -42,7 +42,7 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
         for i_col in feature_cols:
             if len(feat_df_drop_idx[i_col].unique()) > 2:
                 real_val_cols.append(i_col)
-        feat_df.loc[:, 'fold'] = 0
+        feat_df.loc[:, 'fold'] = 'trainModel'
         # create 20 pseudo test entries
         df_shape = feat_df.shape
         number_of_real_col = len(real_val_cols)
@@ -52,7 +52,7 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
             # number_of_real_col = len(real_val_cols)
             # feat_df.loc[ri] = np.random.randn(number_of_real_col)
             feat_df.loc[ri, real_val_cols] = np.random.randn(number_of_real_col)
-            feat_df.loc[ri, 'fold'] = 1
+            feat_df.loc[ri, 'fold'] = 'pseudoTest'
             feat_df.loc[ri, 'seqID'] = i
             if (i % 2) == 0:
                 c = 'pos'
@@ -62,7 +62,7 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
         new_feat_dir = os.path.join(data_dir, ff.split('/')[-1])
         if not exists(new_feat_dir):
             os.mkdir(new_feat_dir)
-            feat_df['fold'] = feat_df['fold'].astype(int)
+            # feat_df['fold'] = feat_df['fold'].astype(int)
             os.system('cp {} {}'.format(os.path.join(original_dir, 'classifiers.txt'),
                                         new_feat_dir))
             os.system('cp {} {}'.format(os.path.join(original_dir, 'weka.properties'),
@@ -76,13 +76,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Feed some bsub parameters')
     parser.add_argument('--path', '-P', type=str, required=True, help='data path')
     parser.add_argument('--queue', '-Q', type=str, default='premium', help='LSF queue to submit the job')
-    parser.add_argument('--node', '-N', type=str, default='16', help='number of node requested')
-    parser.add_argument('--time', '-T', type=str, default='20:00', help='number of hours requested')
-    parser.add_argument('--memory', '-M', type=str, default='20000', help='memory requsted in MB')
+    parser.add_argument('--node', '-N', type=str, default='32', help='number of node requested')
+    parser.add_argument('--time', '-T', type=str, default='40:00', help='number of hours requested')
+    parser.add_argument('--memory', '-M', type=str, default='16000', help='memory requsted in MB')
     parser.add_argument('--classpath', '-CP', type=str, default='./weka.jar', help='default weka path')
     parser.add_argument('--hpc', type=str2bool, default='true', help='use HPC cluster or not')
     parser.add_argument('--fold', '-F', type=int, default=5, help='number of cross-validation fold')
-    parser.add_argument('--rank', type=str2bool, default='False', help='getting attribute importance')
+    parser.add_argument('--rank', type=str2bool, default='False', help='get attribute importance')
+    parser.add_argument('--writeModel', type=str2bool, default='False', help='write model or not')
     # parser.add_argument('--create_rank_dir', type=str2bool, default='False', help='getting attribute importance')
     args = parser.parse_args()
     ### record starting time
@@ -105,17 +106,17 @@ if __name__ == "__main__":
 
     ### get paths of the list of features
     fns = listdir(data_path)
-    excluding_folder = ['analysis', 'feature_rank']
+    excluding_folder = ['analysis', 'feature_rank', 'model_built']
     fns = [fn for fn in fns if not fn in excluding_folder]
     fns = [fn for fn in fns if not 'tcca' in fn]
     fns = [data_path + '/' + fn for fn in fns]
     feature_folders = [fn for fn in fns if isdir(fn)]
 
-    if args.rank:
-        feature_rank_path = os.path.join(data_path,'feature_rank')
-        if not exists(feature_rank_path):
-            os.mkdir(feature_rank_path)
-        data_path, feature_folders = create_pseudoTestdata(feature_rank_path,
+    if args.rank or args.writeModel:
+        model_built_path = os.path.join(data_path, 'model_built')
+        if not exists(model_built_path):
+            os.mkdir(model_built_path)
+        data_path, feature_folders = create_pseudoTestdata(model_built_path,
                                                            feature_folders,
                                                            original_dir=data_path,
                                                            # create_rank_dir=args.create_rank_dir,
@@ -145,6 +146,9 @@ if __name__ == "__main__":
         fold_values = list(df[p['foldAttribute']].unique())
     else:
         fold_values = range(int(p['foldCount']))
+
+    # if writeModel:
+    #     fold_values = ['test']
     id_col = p['idAttribute']
     label_col = p['classAttribute']
     jobs_fn = "temp_train_base_{}_{}.jobs".format(data_source_dir, data_name)
@@ -159,12 +163,13 @@ if __name__ == "__main__":
 
         for parameters in all_parameters:
             project_path, classifier, fold, bag = parameters
-            jf.write('groovy -cp %s %s/base_predictors.groovy %s %s %s %s %s %s\n' % (
-                classpath, working_dir, data_path, project_path, fold, bag, args.rank, classifier))
+            jf.write('groovy -cp %s %s/base_predictors.groovy %s %s %s %s %s %s %s\n' % (
+                classpath, working_dir, data_path, project_path, fold, bag, args.rank, args.writeModel, classifier))
 
         if not args.hpc:
-            jf.write('python combine_individual_feature_preds.py %s %s\npython combine_feature_predicts.py %s %s\n' % (
-                data_path, args.rank, data_path, args.rank))
+            jf.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+                data_path, args.rank, 'False',
+                data_path, args.rank, 'False'))
 
         return jf
 
@@ -176,16 +181,17 @@ if __name__ == "__main__":
         lsf_fn = 'run_%s_%s.lsf' % (data_source_dir, data_name)
         fn = open(lsf_fn, 'w')
         fn.write(
-            '#!/bin/bash\n#BSUB -J EI-%s\n#BSUB -P acc_pandeg01a\n#BSUB -q %s\n#BSUB -n %s\n#BSUB -sp 100\n#BSUB -W %s\n#BSUB -o %s.stdout\n#BSUB -eo %s.stderr\n#BSUB -R rusage[mem=20000]\n' % (
-            data_name, args.queue, args.node, args.time, data_source_dir, data_source_dir))
+            '#!/bin/bash\n#BSUB -J EI-%s\n#BSUB -P acc_pandeg01a\n#BSUB -q %s\n#BSUB -n %s\n#BSUB -W %s\n#BSUB -o %s.stdout\n#BSUB -eo %s.stderr\n#BSUB -R rusage[mem=%s]\n' % (
+            # '#!/bin/bash\n#BSUB -J EI-%s\n#BSUB -P acc_pandeg01a\n#BSUB -q %s\n#BSUB -n %s\n#BSUB -W %s\n#BSUB -o %s.stdout\n#BSUB -eo %s.stderr\n#BSUB -R himem\n' % (
+            data_name, args.queue, args.node, args.time, data_source_dir, data_source_dir, args.memory))
         fn.write('module load java\nmodule load python\nmodule load groovy\nmodule load selfsched\nmodule load weka\n')
-        fn.write('export _JAVA_OPTIONS="-XX:ParallelGCThreads=10"\nexport JAVA_OPTS="-Xmx30g"\nexport CLASSPATH=%s\n' % (
-            args.classpath))
+        fn.write('export _JAVA_OPTIONS="-XX:ParallelGCThreads=10"\nexport JAVA_OPTS="-Xmx{}g"\nexport CLASSPATH={}\n'.format(int(float(args.memory)/1024)-1,args.classpath))
 
         fn.write('mpirun selfsched < {}\n'.format(jobs_fn))
         fn.write('rm {}\n'.format(jobs_fn))
-        fn.write('python combine_individual_feature_preds.py %s %s\npython combine_feature_predicts.py %s %s\n' % (
-        data_path, args.rank, data_path, args.rank))
+        fn.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+        data_path, args.rank, 'False',
+        data_path, args.rank, 'False'))
         fn.close()
         system('bsub < %s' % lsf_fn)
         system('rm %s' % lsf_fn)

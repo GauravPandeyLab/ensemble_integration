@@ -53,13 +53,28 @@ def fmeasure_score(labels, predictions, thres=None, beta = 1.0, pos_label = 1):
     if thres is None:
         precision, recall, threshold = sklearn.metrics.precision_recall_curve(labels, predictions,
                                                                               pos_label=pos_label)
-        f1 = (1 + beta**2) * (precision * recall) / ((beta**2 * precision) + recall)
+        # f1 = (1 + beta**2) * (precision * recall) / ((beta**2 * precision) + recall)
+        f1 = 2 * (precision * recall) / (precision + recall)
         # print(threshold)
-        if len(threshold[where(f1==nanmax(f1))]) > 1:
-            opt_threshold = threshold[where(f1==nanmax(f1))][0]
-        else:
-            opt_threshold = threshold[where(f1 == nanmax(f1))]
-        return {'F':nanmax(f1), 'thres':opt_threshold}
+        # if len(threshold[where(f1==nanmax(f1))]) > 1:
+        fmax_point = where(f1==nanmax(f1))[0]
+        # if len(fmax_point) > 0:
+        p_maxes = precision[fmax_point]
+        r_maxes = recall[fmax_point]
+        pr_diff = np.abs(p_maxes - r_maxes)
+        balance_fmax_point = where(pr_diff == min(pr_diff))[0]
+        p_max = p_maxes[balance_fmax_point][0]
+        r_max = r_maxes[balance_fmax_point][0]
+
+        opt_threshold = threshold[fmax_point][balance_fmax_point][0]
+
+        # r_max = recall[where(f1==nanmax(f1))[0]][0]
+        # p_max = precision[where(f1 == nanmax(f1))[0]][0]
+        # else:
+        #     opt_threshold = threshold[where(f1 == nanmax(f1))][0]
+        #     r_max = recall[where(f1 == nanmax(f1))][0]
+        #     p_max = precision[where(f1 == nanmax(f1))][0]
+        return {'F':nanmax(f1), 'thres':opt_threshold, 'P':p_max, 'R':r_max, 'PR-curve': [precision, recall]}
 
     else:
         predictions[predictions > thres] = 1
@@ -90,6 +105,9 @@ def f_max(labels, predictions, thres=None, beta = 1.0, pos_label = 1):
 
 # def fmeasure(labels, predictions)
 
+def load_cmd_option(cmd, option):
+    return cmd.split('--{} '.format(option))[-1].split(' --')[0]
+
 def load_arff(filename):
     return DataFrame.from_records(loadarff(filename)[0])
 
@@ -117,6 +135,7 @@ def load_properties(dirname):
 
 def read_fold(path, fold):
     train_df        = read_csv('%s/validation-%s.csv.gz' % (path, fold), index_col = [0, 1], compression = 'gzip')
+    # print(train_df[train_df.isna().any(axis=1)])
     test_df         = read_csv('%s/predictions-%s.csv.gz' % (path, fold), index_col = [0, 1], compression = 'gzip')
     train_labels    = train_df.index.get_level_values('label').values
     test_labels     = test_df.index.get_level_values('label').values
@@ -148,7 +167,7 @@ def check_dir_n_mkdir(path):
     if not os.path.exists(path):
         os.mkdir(path)
 
-def data_dir_list(data_path, excluding_folder = ['analysis', 'feature_rank']):
+def data_dir_list(data_path, excluding_folder = ['analysis', 'feature_rank', 'model_built']):
     fns = listdir(data_path)
     fns = [fn for fn in fns if not fn in excluding_folder]
     fns = [fn for fn in fns if not 'tcca' in fn]

@@ -34,7 +34,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from sklearn.inspection import permutation_importance
-
+from sklearn.preprocessing import StandardScaler
+import pickle
 
 
 def str2bool(v):
@@ -135,7 +136,7 @@ def thres_fmax(train_label_df, train_pred_df, testing_bool=False):
 
     return thres
 
-def CES_classifier(path, fold_count=range(5), agg=1, rank=False):
+def CES_classifier(path, fold_count=range(5), agg=1, rank=False, writeModel=False,):
     assert exists(path)
     if not exists('%s/analysis' % path):
         mkdir('%s/analysis' % path)
@@ -162,7 +163,7 @@ def CES_classifier(path, fold_count=range(5), agg=1, rank=False):
             performance_dfs.append(perf_df)
             thres = thres_fmax(train_pred_df.label, train_pred_df.prediction)
             if rank:
-                if fold == 1:
+                if fold == 'pseudoTest':
                     best_ensembles.append(best_ensemble)
         performance_df = pd.concat(performance_dfs)
         performance_df.to_csv('%s/analysis/selection-%s-%s-iterations.csv' % (path, method, 'fmax'), index=False)
@@ -189,11 +190,13 @@ def CES_classifier(path, fold_count=range(5), agg=1, rank=False):
         local_model_weight_df = None
     return {'f-measure':fmax, 'auc':float(auc), 'auprc':auprc,
             'model_weight': local_model_weight_df,
-            'predictions': predictions_only_df}
+            'predictions': predictions_only_df,
+            'model': best_ensembles
+            }
 
 
 
-def aggregating_ensemble(path, fold_count=range(5), agg=1, rank=False, median=False):
+def aggregating_ensemble(path, fold_count=range(5), agg=1, rank=False, writeModel=False, median=False):
     def _unbag_mean(df, agg=agg):
         df = common.unbag(df, agg)
         return df.mean(axis=1)
@@ -248,13 +251,47 @@ def aggregating_ensemble(path, fold_count=range(5), agg=1, rank=False, median=Fa
     else:
         local_model_weight_df = None
 
+    model_name = 'median' if median else 'mean'
+
     return {'f-measure': fmax, 'auc': auc, 'auprc': auprc,
             'model_weight': local_model_weight_df,
-            'predictions': pred_out_df}
+            'predictions': pred_out_df,
+            'model': model_name}
 
 
 
-def bestbase_classifier(path, fold_count=range(5), agg=1, rank=False):
+def bestbase_classifier(path, fold_count=range(5), agg=1, rank=False, writeModel=False):
+    assert exists(path)
+    if not exists('%s/analysis' % path):
+        mkdir('%s/analysis' % path)
+    predictions = []
+    labels = []
+
+    for fold in fold_count:
+        train_df, train_label, test_df, label = common.read_fold(path, fold)
+        # test_df = common.unbag(test_df, agg)
+        predictions.append(test_df)
+        labels = append(labels, label)
+    predictions = pd.concat(predictions)
+
+    fmax_list = [common.fmeasure_score(labels, predictions.iloc[:, i])['F'] for i in range(len(predictions.columns))]
+    fscores_list = [common.fmeasure_score(labels, predictions.iloc[:, i]) for i in range(len(predictions.columns))]
+
+    argmax_bp_idx = np.argmax(fmax_list)
+    best_bp_predictions = predictions.iloc[:,[argmax_bp_idx]]
+    best_fmax = max(fmax_list)
+    best_auc = sklearn.metrics.roc_auc_score(labels, best_bp_predictions)
+    best_auprc = common.auprc(labels, best_bp_predictions)
+    best_bp_name = predictions.columns.tolist()[argmax_bp_idx]
+    print('best_bp')
+    best_bp_predictions.columns = ['best base']
+    print(best_bp_predictions)
+
+    return {'f-measure':{'F':best_fmax, 'R':fscores_list[argmax_bp_idx]['R'], 'P':fscores_list[argmax_bp_idx]['P']},
+            'auc': best_auc,
+            'auprc': best_auprc, 'predictions': best_bp_predictions, 'model':best_bp_name}
+
+def median_base_classifier(path, fold_count=range(5), agg=1, rank=False):
     assert exists(path)
     if not exists('%s/analysis' % path):
         mkdir('%s/analysis' % path)
@@ -281,10 +318,16 @@ def bestbase_classifier(path, fold_count=range(5), agg=1, rank=False):
     return {'f-measure': best_fmax, 'auc': best_auc,
             'auprc': best_auprc, 'predictions': best_bp_predictions}
 
-def stacked_generalization(path, stacker_name, stacker, fold, agg, stacked_df,
+def stacked_generalization(path, stacker_name, stacker, fold, agg, stacked_df, writeModel=False,
                            regression=False):
     train_df, train_labels, test_df, test_labels = common.read_fold(path, fold)
     stacker = stacker.fit(train_df, train_labels)
+
+    # if z_scoring:
+    # z_scaler = StandardScaler()
+    # # print(test_df)
+    # train_df[:] = z_scaler.fit_transform(train_df.values)
+    # test_df[:] = z_scaler.transform(test_df.values)
 
     if hasattr(stacker, "predict_proba") and (not regression):
         test_predictions = stacker.predict_proba(test_df)[:, 1]
@@ -303,13 +346,13 @@ def stacked_generalization(path, stacker_name, stacker, fold, agg, stacked_df,
     # print('stacking_df:')
     # print(df)
     return {'testing_df':df, "training": [train_labels, train_predictions], 'train_dfs': [train_df, train_labels],
-            'stacked_df':stacked_df}
+            'stacked_df':stacked_df, 'stacker':stacker}
 
 
-def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
+def main_classification(path, f_list, agg=1, rank=False, ens_algo='', writeModel=False):
     #
     dn = abspath(path).split('/')[-1]
-    cols = ['data_name', 'fmax', 'method', 'auc', 'auprc']
+    cols = ['data_name', 'fmax', 'method', 'auc', 'auprc', 'pmax', 'rmax']
 
     dfs = []
     predictions_dataframes = []
@@ -317,23 +360,27 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
     local_model_weight_dfs = []
     aggregated_dict = {'CES': CES_classifier,
                        'Mean': aggregating_ensemble,
-                       'best base': bestbase_classifier}
+                       'best base': bestbase_classifier,
+                       # 'median base': _bestbaseclassifier
+                       }
 
-
-
+    ens_models = dict()
+    nestedCV_setup = (rank is False) and (writeModel is False)
     for key, val in aggregated_dict.items():
 
-        if (rank and (key == ens_for_rank)) or (not rank):
+        if (rank and ((key == ens_algo) or (ens_algo == 'All'))) or (not rank):
             print('[{}] Start building model #################################'.format(key))
             perf = val(path, fold_values, agg, rank)
-            if key != 'best base':
-                fmax_perf = perf['f-measure']['F']
-                if rank:
+            if rank:
+                if key != 'best base':
                     local_model_weight_dfs.append(perf['model_weight'])
-            else:
-                fmax_perf = perf['f-measure']
+                if writeModel:
+                    ens_models[key] = perf['model']
 
-            if (not rank):
+            if nestedCV_setup:
+                fmax_perf = perf['f-measure']['F']
+                rmax_perf = perf['f-measure']['R']
+                pmax_perf = perf['f-measure']['P']
                 auc_perf = perf['auc']
                 auprc_perf = perf['auprc']
                 print('[{}] Finished evaluating model ############################'.format(key))
@@ -341,7 +388,8 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
                 print('[{}] AUC score is {}.'.format(key, auc_perf) )
                 print('[{}] AUPRC score is {}.'.format(key, auprc_perf))
                 predictions_dataframes.append(perf['predictions'])
-                dfs.append(pd.DataFrame(data=[[dn, fmax_perf, key, auc_perf, auprc_perf]], columns=cols, index=[0]))
+                dfs.append(pd.DataFrame(data=[[dn, fmax_perf, key, auc_perf, auprc_perf, pmax_perf, rmax_perf]], columns=cols, index=[0]))
+
 
     # print('Saving results #############################################')
     analysis_path = '%s/analysis' % path
@@ -349,32 +397,36 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
         mkdir(analysis_path)
     """ Stacking Ensemble """
     stackers_dict = {
-                     "RF.S": RandomForestClassifier(),
-                     "SVM.S": SVC(kernel='linear', probability=True),
-                     "NB.S": GaussianNB(),
-                     "LR.S": LogisticRegression(),
-                     "AdaBoost.S": AdaBoostClassifier(),
-                     "DT.S": DecisionTreeClassifier(),
-                     "GradientBoosting.S": GradientBoostingClassifier(),
-                     "KNN.S": KNeighborsClassifier(),
-                     "XGB.S": XGBClassifier()
+                     "S.RF": RandomForestClassifier(),
+                     "S.SVM": SVC(kernel='linear', probability=True, max_iter=1e7),
+                     "S.NB": GaussianNB(),
+                     "S.LR": LogisticRegression(),
+                     "S.AB": AdaBoostClassifier(),
+                     "S.DT": DecisionTreeClassifier(),
+                     "S.GB": GradientBoostingClassifier(),
+                     "S.KNN": KNeighborsClassifier(),
+                     "S.XGB": XGBClassifier()
                     }
     df_cols = ['f_train_base','f_test_base', 'fold', 'stacker',
                'feat_imp', 'base_data', 'base_cls', 'base_bag']
     stacked_df = pd.DataFrame(columns= df_cols)
 
     for i, (stacker_name, stacker) in enumerate(stackers_dict.items()):
-        if (rank and (stacker_name == ens_for_rank)) or (not rank):
+        run_condition = (rank or writeModel) and ((stacker_name == ens_algo) or (ens_algo == 'All'))
+        if run_condition:
             print('[%s] Start building model ################################' % (stacker_name))
             stacking_output = []
             for fold in f_list:
                 stack = stacked_generalization(path, stacker_name, stacker, fold, agg, stacked_df)
                 stacked_df = stack.pop('stacked_df')
-                if rank:
-                    if fold == 1:
+                if rank or writeModel:
+                    if fold == 'pseudoTest':
                         stacking_output.append(stack)
+                        if writeModel:
+                            ens_models[stacker_name] = stack['stacker']
                 else:
                     stacking_output.append(stack)
+
             predictions_dfs = [s['testing_df'] for s in stacking_output]
             if rank:
                 training_dfs = stacking_output[0]['train_dfs'][0]
@@ -403,9 +455,9 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
             fmax = common.fmeasure_score(predictions_df.label, predictions_df.prediction, thres)
             auc = sklearn.metrics.roc_auc_score(predictions_df.label, predictions_df.prediction)
             auprc = common.auprc(predictions_df.label, predictions_df.prediction)
-            if (not rank):
+            if nestedCV_setup:
                 print('[%s] Finished evaluating model ###########################' % (stacker_name))
-                print('[%s] F-measure score is %s.' % (stacker_name, fmax['F']))
+                print('[%s] F-max score is %s.' % (stacker_name, fmax['F']))
                 if 'P' in fmax:
                     print('[%s] Precision score is %s.' % (stacker_name, fmax['P']))
                     print('[%s] Recall score is %s.' % (stacker_name, fmax['R']))
@@ -417,7 +469,7 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
                 predictions_df.set_index(['id', 'label'], inplace=True)
                 # print(predictions_df)
                 predictions_dataframes.append(predictions_df)
-            df = pd.DataFrame(data=[[dn, fmax['F'], stacker_name, auc, auprc]], columns=cols, index=[0])
+            df = pd.DataFrame(data=[[dn, fmax['F'], stacker_name, auc, auprc, fmax['R'], fmax['P']]], columns=cols, index=[0])
             dfs.append(df)
 
 
@@ -426,14 +478,17 @@ def main_classification(path, f_list, agg=1, rank=False, ens_for_rank=''):
         # print(local_model_weight_dfs)
         local_mr_df = pd.concat(local_model_weight_dfs)
         local_mr_df.to_csv(os.path.join(analysis_path, 'local_model_ranks.csv'))
-
+    if writeModel is True:
+        pickle.dump(ens_models, open(os.path.join(analysis_path, "ens_model.pkl"), 'wb'))
 
     """ Save results """
-    if rank is False:
+    if nestedCV_setup:
         dfs = pd.concat(dfs)
         predictions_dataframe = pd.concat(predictions_dataframes, axis=1)
         predictions_dataframe.to_csv(os.path.join(analysis_path, "predictions.csv"))
         dfs.to_csv(os.path.join(analysis_path, "performance.csv"), index=False)
+
+
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
@@ -446,11 +501,12 @@ if __name__ == "__main__":
     parser.add_argument('--fold', '-F', type=int, default=5, help='cross-validation fold')
     parser.add_argument('--aggregate', '-A', type=int, default=1, help='if aggregate is needed, feed bagcount, else 1')
     parser.add_argument('--rank', type=str2bool, default='False', help='Boolean of getting local model ranking or not (default:False)')
-    parser.add_argument('--ens_for_rank', type=str, default='Choose one of the ensemble', help='Choose the ensemble for EI interpretation')
+    parser.add_argument('--writeModel', type=str2bool, default='False', help='Boolean of writing the ensemble or not (default:False)')
+    parser.add_argument('--ens_algo', type=str, default='All', help='Choose the ensemble for EI (Default: running all ensemble algorithms)')
     args = parser.parse_args()
     data_path = abspath(args.path)
-    if args.rank:
-        data_path = os.path.join(data_path,'feature_rank')
+    if args.rank or args.writeModel:
+        data_path = os.path.join(data_path,'model_built')
 
     feature_folders = common.data_dir_list(data_path)
     if len(feature_folders) == 0:
@@ -465,4 +521,6 @@ if __name__ == "__main__":
     else:
         fold_values = range(int(p['foldCount']))
 
-    main_classification(data_path, fold_values, args.aggregate, args.rank, args.ens_for_rank)
+    main_classification(data_path, fold_values,
+                        args.aggregate, args.rank,
+                        args.ens_algo, args.writeModel)

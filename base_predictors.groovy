@@ -29,6 +29,7 @@ import weka.filters.unsupervised.instance.*
 import weka.attributeSelection.*
 import weka.attributeSelection.ClassifierAttributeEval
 
+
 void dump(instances, filename) {
     w = new BufferedWriter(new FileWriter(filename))
     w.write(instances.toString())
@@ -51,14 +52,14 @@ currentFold                 = args[2]
 currentBag                  = Integer.valueOf(args[3])
 // Add boolean of TCCA
 attr_imp_bool               = Boolean.valueOf(args[4])
-
+writeModel                  = Boolean.valueOf(args[5])
 // if (tcca_bool){
 //     inputFilename		    = rootDir + "/data_" + currentFold + ".arff"
 //     printf "%s", inputFilename
 // } else {
 inputFilename		    = rootDir + "/data.arff"
 // }
-String[] classifierString   = args[5..-1]
+String[] classifierString   = args[6..-1]
 String classifierName       = classifierString[0]
 String shortClassifierName  = classifierName.split("\\.")[-1]
 String[] classifierOptions  = new String[0]
@@ -81,7 +82,7 @@ if (p.containsKey("foldCount")) {
 foldAttribute       = p.getProperty("foldAttribute", "").trim()
 nestedFoldCount     = Integer.valueOf(p.getProperty("nestedFoldCount"))
 bagCount            = Integer.valueOf(p.getProperty("bagCount"))
-writeModel          = Boolean.valueOf(p.getProperty("writeModel", "false"))
+// writeModel          = Boolean.valueOf(p.getProperty("writeModel", "false"))
 
 // load data, determine if regression or classification
 source              = new DataSource(inputFilename)
@@ -188,7 +189,7 @@ if (!classifierDir.exists()) {
 outputPrefix = sprintf "predictions-%s-%02d", currentFold, currentBag
 writer = new PrintWriter(new GZIPOutputStream(new FileOutputStream(new File(classifierDir, outputPrefix + ".csv.gz"))))
 if (writeModel) {
-    SerializationHelper.write(new GZIPOutputStream(new FileOutputStream(new File(classifierDir, outputPrefix + ".model.gz"))), filteredClassifier)
+    SerializationHelper.write(new GZIPOutputStream(new FileOutputStream(new File(classifierDir, outputPrefix + "-local_model.gz"))), filteredClassifier)
 }
 header = sprintf "# %s@%s %.2f minutes %s\n", System.getProperty("user.name"), java.net.InetAddress.getLocalHost().getHostName(), durationMinutes, classifierString.join(" ")
 writer.write(header)
