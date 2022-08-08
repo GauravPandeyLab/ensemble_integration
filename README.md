@@ -125,14 +125,16 @@ After these two steps for calculating LFR and LMR, we may run the ensemble featu
 
 
 ## Saving and loading EI models
+
+### Saving local & ensemble models of EI
 We may save both local models and EI models for further inference by setting `--writeModel True` for both `train_base.py` and `ensemble.py`
 Local models were saved by:
 	
 	python train_base.py --path [path] --writeModel True
 
-Similar to the model interpretation, our target of interest would be the best-performing ensemble for EI. So we may save the ensemble model by the following: 
+By default, the following command saves all the ensemble models of EI. We may save the specific ensemble model only (e.g. the best-performing ensemble for EI) by specifying `--ens` option: 
 	
-	python ensemble.py --path [path] --writeModel True --ens [ensemble algorithm] 
+	python ensemble.py --path [path] --writeModel True --ens [ensemble algorithm, default:all ensemble algorithms] 
 
 Loading local models and make base prediction to new dataset (the `model_path` would be the `path/model_built`):
 
