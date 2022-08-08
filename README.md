@@ -65,7 +65,7 @@ For example, you may generate the input data for predicting `GO:0000166` by the 
 
 Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study. However, we shared the model built based on the dataset for application in `covid19-model-built.zip` which can load by using `load_models.py` [(more detail here)](#saving-and-loading-ei-models).
 
-## Evaluate/Model Selection of EI models by Nested CV
+## Evaluate/Model Selection of EI models by nested CV
 
 ### Train base classifiers
 
@@ -103,7 +103,7 @@ F-max scores of these models will be printed and written in the `performance.csv
 
 The prediction scores by the ensemble methods will be saved in `predictions.csv` file in `analysis` folder under the data path.
 
-### Interpretation by EI
+## Model interpretation by EI
 
 Similar to the above step, we will run `train_base.py` and `ensemble.py` again, with option `--rank True`, to train the EI by the whole dataset. All  these results will be created in `path/model_built` folder.
 
@@ -124,7 +124,7 @@ After these two steps for calculating LFR and LMR, we may run the ensemble featu
 	python ensemble_ranking.py --path [path] --ens [ensemble algorithm]
 
 
-### Saving and loading EI models
+## Saving and loading EI models
 We may save both local models and EI models for further inference by setting `--writeModel True` for both `train_base.py` and `ensemble.py`
 Local models were saved by:
 	
@@ -146,7 +146,7 @@ We suggest using the best-performing ensemble for EI (eg `S.LR`, `CES`, `Mean` e
 After this step, `prediction_scores.csv` containing predictions of new dataset is generated in `data_path/analysis` folder.
 
 
-### More information about the implementation of EI
+## More information about the implementation of EI
 We used 10 standard binary classification algorithms, such as support vector machine (SVM), random forest (RF) and logistic regression (LR), as implemented in Weka to derive local predictive models from each individual data modality.
 
 Here are the base classifier included in `classifier.txt`, which are used in `train_base.py`.
