@@ -76,7 +76,7 @@ def base_predictors(model_path, data_path, hpc, classpath):
         for parameters in all_parameters:
             data_model_pair, classifier, fold, bag = parameters
             local_model_path, data_feat_dir = data_model_pair
-            jf.write('groovy -cp %s %s/load_base_predictors.groovy %s %s %s %s %s %s\n' % (classpath, working_dir,
+            jf.write('groovy -cp %s %s/groovy_scripts/load_base_predictors.groovy %s %s %s %s %s %s\n' % (classpath, working_dir,
                                                                                          data_path,
                                                                                          data_feat_dir,
                                                                                          fold,

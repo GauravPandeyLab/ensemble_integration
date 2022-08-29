@@ -138,13 +138,13 @@ if __name__ == "__main__":
     if not exists(scratch_data_dir):
         mkdir(scratch_data_dir)
 
-    os.system('cp sample_folder/classifiers.txt {}'.format(scratch_data_dir[:-1]))
-    os.system('cp sample_folder/weka.properties {}'.format(scratch_data_dir[:-1]))
+    os.system('cp sample_data/classifiers.txt {}'.format(scratch_data_dir[:-1]))
+    os.system('cp sample_data/weka.properties {}'.format(scratch_data_dir[:-1]))
 
     # for f in features:
     #     dest_dir = scratch_data_dir + f
-    #     os.system('cp sample_folder/classifiers.txt {}'.format(dest_dir))
-    #     os.system('cp sample_folder/weka.properties {}'.format(dest_dir))
+    #     os.system('cp sample_data/classifiers.txt {}'.format(dest_dir))
+    #     os.system('cp sample_data/weka.properties {}'.format(dest_dir))
     #
     # if len(features) > 0:
     for feature in features:
@@ -153,8 +153,8 @@ if __name__ == "__main__":
             mkdir(f_dir)
         if len(features) > 1:
             dest_dir = scratch_data_dir + feature
-            os.system('cp sample_folder/classifiers.txt {}'.format(dest_dir))
-            os.system('cp sample_folder/weka.properties {}'.format(dest_dir))
+            os.system('cp sample_data/classifiers.txt {}'.format(dest_dir))
+            os.system('cp sample_data/weka.properties {}'.format(dest_dir))
 
 
     # deepNF_net = pd.read_csv('/sc/hydra/scratch/liy42/deepNF/%s/%s.arff' %(t,t), header=None,comment='@')

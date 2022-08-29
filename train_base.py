@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
         for parameters in all_parameters:
             project_path, classifier, fold, bag = parameters
-            jf.write('groovy -cp %s %s/base_predictors.groovy %s %s %s %s %s %s %s\n' % (
+            jf.write('groovy -cp %s %s/groovy_scripts/base_predictors.groovy %s %s %s %s %s %s %s\n' % (
                 classpath, working_dir, data_path, project_path, fold, bag, args.rank, args.writeModel, classifier))
 
         if not args.hpc:
