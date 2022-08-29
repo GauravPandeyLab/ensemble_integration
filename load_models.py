@@ -3,12 +3,10 @@ import argparse
 import pickle
 import os
 import pandas
-import numpy as np
 import pandas as pd
 
-from common import load_properties, read_arff_to_pandas_df, str2bool
+from processing_scripts.common import load_properties, str2bool
 from time import time
-import generate_data
 from os.path import abspath, dirname, exists, isdir
 from sys import argv
 from os import listdir
@@ -86,7 +84,7 @@ def base_predictors(model_path, data_path, hpc, classpath):
                                                                                       ))
 
         if not hpc:
-            jf.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+            jf.write('python processing_scripts/combine_individual_feature_preds.py %s %s %s\npython processing_scripts/combine_feature_predicts.py %s %s %s\n' % (
                 data_path, 'False', 'True',
                 data_path, 'False', 'True'))
 
@@ -109,7 +107,7 @@ def base_predictors(model_path, data_path, hpc, classpath):
                 int(float(args.memory) / 1024) - 1, args.classpath))
         fn.write('mpirun selfsched < {}\n'.format(jobs_fn))
         fn.write('rm {}\n'.format(jobs_fn))
-        fn.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+        fn.write('python processing_scripts/combine_individual_feature_preds.py %s %s %s\npython processing_scripts/combine_feature_predicts.py %s %s %s\n' % (
                 data_path, 'False', 'True',
                 data_path, 'False', 'True'))
         fn.close()

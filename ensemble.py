@@ -4,37 +4,33 @@
 	See README.md for detailed information.
 	@author: Yan-Chak Li, Linhua Wang
 '''
-import common
+from processing_scripts import common
 import pandas as pd
 import argparse
 from os import mkdir
 import os
-from os.path import abspath, exists
-from numpy import array, column_stack, append
+from os.path import exists
+from numpy import append
 from numpy.random import choice, seed
 
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor  # Random Forest
+from sklearn.ensemble import RandomForestClassifier  # Random Forest
 from sklearn.naive_bayes import GaussianNB  # Naive Bayes
-from sklearn.linear_model import LogisticRegression, LinearRegression  # LR
-from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor  # Adaboost
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor  # Decision Tree
-from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor  # Logit Boost with parameter(loss='deviance')
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor  # KNN
+from sklearn.linear_model import LogisticRegression  # LR
+from sklearn.ensemble import AdaBoostClassifier  # Adaboost
+from sklearn.tree import DecisionTreeClassifier  # Decision Tree
+from sklearn.ensemble import GradientBoostingClassifier  # Logit Boost with parameter(loss='deviance')
+from sklearn.neighbors import KNeighborsClassifier  # KNN
 
 from sklearn.metrics import fbeta_score, make_scorer
-from xgboost import XGBClassifier, XGBRegressor # XGB
-from sklearn.svm import SVC, LinearSVR
+from xgboost import XGBClassifier  # XGB
+from sklearn.svm import SVC
 
 import sklearn
 import warnings
-from common import load_arff_headers, load_properties
-from os.path import abspath, isdir
-from os import remove, system, listdir
-import matplotlib.pyplot as plt
+from processing_scripts.common import load_properties
+from os.path import abspath
 import numpy as np
-import seaborn as sns
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import StandardScaler
 import pickle
 
 
@@ -91,8 +87,8 @@ def select_candidate_enhanced(train_df, train_labels, best_classifiers, ensemble
     return best_candidate
 
 def selection(fold, seedval, path, agg,
-                           regression=False, greater_is_better=False,
-                           scoring_func=common.f_max):
+              regression=False, greater_is_better=False,
+              scoring_func=common.f_max):
     seed(seedval)
     initial_ensemble_size = 2
     max_ensemble_size = 50
@@ -516,7 +512,7 @@ if __name__ == "__main__":
     p = load_properties(data_path)
     assert ('foldAttribute' in p) or ('foldCount' in p)
     if 'foldAttribute' in p:
-        df = common.read_arff_to_pandas_df(os.path.join(feature_folders[0],'data.arff'))
+        df = common.read_arff_to_pandas_df(os.path.join(feature_folders[0], 'data.arff'))
         fold_values = df[p['foldAttribute']].unique()
     else:
         fold_values = range(int(p['foldCount']))

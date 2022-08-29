@@ -11,9 +11,9 @@ from os import system
 import os
 from os.path import abspath, dirname, exists
 from sys import argv
-from common import load_properties, read_arff_to_pandas_df
+from processing_scripts.common import load_properties, read_arff_to_pandas_df
 from time import time
-import generate_data
+from processing_scripts import generate_data
 import numpy as np
 
 
@@ -67,7 +67,7 @@ def create_pseudoTestdata(data_dir, feat_folders, original_dir):
                                         new_feat_dir))
             os.system('cp {} {}'.format(os.path.join(original_dir, 'weka.properties'),
                                         new_feat_dir))
-            generate_data.convert_to_arff(feat_df, os.path.join(new_feat_dir,'data.arff'))
+            generate_data.convert_to_arff(feat_df, os.path.join(new_feat_dir, 'data.arff'))
         new_feat_folders.append(new_feat_dir)
     return data_dir, new_feat_folders
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
                 classpath, working_dir, data_path, project_path, fold, bag, args.rank, args.writeModel, classifier))
 
         if not args.hpc:
-            jf.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+            jf.write('python processing_scripts/combine_individual_feature_preds.py %s %s %s\npython processing_scripts/combine_feature_predicts.py %s %s %s\n' % (
                 data_path, args.rank, 'False',
                 data_path, args.rank, 'False'))
 
@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
         fn.write('mpirun selfsched < {}\n'.format(jobs_fn))
         fn.write('rm {}\n'.format(jobs_fn))
-        fn.write('python combine_individual_feature_preds.py %s %s %s\npython combine_feature_predicts.py %s %s %s\n' % (
+        fn.write('python processing_scripts/combine_individual_feature_preds.py %s %s %s\npython processing_scripts/combine_feature_predicts.py %s %s %s\n' % (
         data_path, args.rank, 'False',
         data_path, args.rank, 'False'))
         fn.close()
