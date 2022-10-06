@@ -9,7 +9,9 @@ import gzip
 from os.path import abspath, exists, isdir
 from os import listdir
 from sys import argv
-from processing_scripts.common import load_arff_headers, load_properties, data_dir_list, read_arff_to_pandas_df, str2bool
+import sys
+sys.path.append('./processing_scripts')
+from common import load_arff_headers, load_properties, data_dir_list, read_arff_to_pandas_df, str2bool
 from pandas import concat, read_csv
 
 def merged_base_innerCV_by_outerfold(f_list, path):

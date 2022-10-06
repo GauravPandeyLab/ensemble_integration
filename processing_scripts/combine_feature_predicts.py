@@ -6,7 +6,10 @@ Date:  12/27/2018
 from os.path import exists, abspath, isdir, dirname
 from sys import argv
 from os import listdir, environ
-from processing_scripts.common import load_properties, load_arff_headers, data_dir_list, read_arff_to_pandas_df, str2bool
+import sys
+sys.path.append('./processing_scripts')
+
+from common import load_properties, load_arff_headers, data_dir_list, read_arff_to_pandas_df, str2bool
 import pandas as pd
 import numpy as np
 
