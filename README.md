@@ -10,10 +10,9 @@ More details of EI can be found in our [Biorxiv preprint](https://www.biorxiv.or
 Full citation:
 
 
-Yan Chak Li, Linhua Wang, Jeffrey Law, T. M. Murali, Gaurav Pandey (2020): Integrating multimodal data through interpretable heterogeneous ensembles,
-bioRxiv. Preprint. 2020.05.29.123497; doi: https://doi.org/10.1101/2020.05.29.123497
+Yan Chak Li, Linhua Wang, Jeffrey N Law, T M Murali, Gaurav Pandey, Integrating multimodal data through interpretable heterogeneous ensembles, Bioinformatics Advances, Volume 2, Issue 1, 2022, vbac065, https://doi.org/10.1093/bioadv/vbac065
 
-
+This repository is protected by [CC BY-NC 4.0](https://github.com/GauravPandeyLab/ensemble_integration/blob/master/license.md). The beta version of EI fully written in python is implemented [here](https://github.com/GauravPandeyLab/ei-python).
 
 ## Configurations
 
@@ -61,7 +60,7 @@ For PFP, since the raw data is very large (around 2139 * 2GB), we uploaded 5 sam
 
 For example, you may generate the input data for predicting `GO:0000166` by the following command:
 
-	python generate_data.py --outcome GO:0000166 
+	python processing_scripts/generate_data.py --outcome GO:0000166 
 
 Due to IRB constraints, we are currently unable to publicly share the COVID-19 EHR dataset used in our study. However, we shared the model built based on the dataset for application in `covid19-model-built.zip` which can load by using `load_models.py` [(more detail here)](#saving-and-loading-ei-models).
 
