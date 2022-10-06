@@ -408,7 +408,8 @@ def main_classification(path, f_list, agg=1, rank=False, ens_algo='', writeModel
     stacked_df = pd.DataFrame(columns= df_cols)
 
     for i, (stacker_name, stacker) in enumerate(stackers_dict.items()):
-        run_condition = (rank or writeModel) and ((stacker_name == ens_algo) or (ens_algo == 'All'))
+        run_condition = ((rank or writeModel) and ((stacker_name == ens_algo) or (ens_algo == 'All'))) or (not (rank or writeModel))
+        # run_condition = (rank or writeModel) and ((stacker_name == ens_algo) or (ens_algo == 'All'))
         if run_condition:
             print('[%s] Start building model ################################' % (stacker_name))
             stacking_output = []
