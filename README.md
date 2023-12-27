@@ -1,5 +1,7 @@
 # Ensemble Integration (EI): Integrating multimodal data through interpretable heterogeneous ensembles
 
+The latest version of EI fully written in python is implemented [here](https://github.com/GauravPandeyLab/eipy), or you may install it by `pip install ensemble-integration` with [full documentation](https://eipy.readthedocs.io/en/latest/).
+
 Ensemble Integration (EI) is a customizable pipeline for generating diverse ensembles of heterogeneous classifiers, as well as the accompanying metadata needed for ensemble learning approaches utilizing ensemble diversity for improved performance. It also fairly evaluates the performance of several ensemble learning methods including ensemble selection [Caruana2004], and stacked generalization (stacking) [Wolpert1992]. Though other tools exist, we are unaware of a similarly modular, scalable pipeline designed for large-scale ensemble learning. EI was developed to support research by Yan Chak Li, Linhua Wang, and Gaurav Pandey.
 
 EI is designed for generating extremely large ensembles (taking days or weeks to generate) and thus consists of an initial data generation phase tuned for multicore and distributed computing environments. The output is a set of compressed CSV files containing the class distribution produced by each classifier that serves as input to a later ensemble learning phase.
@@ -12,7 +14,7 @@ Full citation:
 
 Yan Chak Li, Linhua Wang, Jeffrey N Law, T M Murali, Gaurav Pandey, Integrating multimodal data through interpretable heterogeneous ensembles, Bioinformatics Advances, Volume 2, Issue 1, 2022, vbac065, https://doi.org/10.1093/bioadv/vbac065
 
-This repository is protected by [CC BY-NC 4.0](https://github.com/GauravPandeyLab/ensemble_integration/blob/master/license.md). The beta version of EI fully written in python is implemented [here](https://github.com/GauravPandeyLab/ei-python).
+This repository is protected by [CC BY-NC 4.0](https://github.com/GauravPandeyLab/ensemble_integration/blob/master/license.md).
 
 ## Configurations
 
